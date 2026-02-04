@@ -1,0 +1,45 @@
+####读取数据
+library(ggplot2)
+library(EnhancedVolcano) 
+###stiffpa_vs_softpa
+data=read.csv("deseq2_results/DEGs_STIFFPA_SOFTPA.csv")
+# 根据log2FC和Pvalue为每个点分组并设置颜色
+group <- ifelse(
+  data$log2FoldChange < -0.58 & data$padj < 0.05, '#4D4398',   # Down
+  ifelse(data$log2FoldChange > 0.58 & data$padj < 0.05, '#F18D00',  # Up
+         '#b5b5b5')  # No difference
+)
+
+# 将NA值赋默认颜色
+group[is.na(group)] <- '#b5b5b5'
+
+# 给颜色向量添加名称
+names(group)[group == '#F18D00'] <- 'Up'
+names(group)[group == '#b5b5b5'] <- 'Nodiff'
+names(group)[group == '#4D4398'] <- 'Down'
+
+# 关注标签
+vals=c("ITGAV","CD36","CPT1A","CXCL8")
+
+
+pdf("visualization/StiffPA_vs_SoftPA.pdf")
+# 绘制火山图
+EnhancedVolcano(
+  data,
+  x = "log2FoldChange",
+  y = "padj",
+  lab = data$gene,
+  pCutoff = 10e-1/20,           # 水平阈值线
+  FCcutoff = 0,               # 垂直阈值线
+  pointSize = 3,                # 散点大小
+  labSize = 4,                  # 标签大小
+  xlim = c(-6, 6),              # X轴范围
+  ylim = c(0, 100),             # Y轴范围
+  selectLab = vals,
+  title = "StiffPA_vs_SoftPA",
+  subtitle= "",
+  labFace = 'bold',             # 标签字体
+  colCustom = group,            # 自定义颜色
+  colAlpha = 0.6                # 透明度
+)
+dev.off()

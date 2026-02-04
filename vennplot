@@ -1,0 +1,36 @@
+data1=filter(data1,data1$group=="UP")
+data2=filter(data2,data2$group=="UP")
+
+library(ggVennDiagram)
+
+# 构建集合
+data_veen <- list(
+  STIFFPA_vs_SOFTPA = data1$gene,
+  STIFFPA_vs_STIFF = data2$gene
+)
+
+# 交集基因
+intersect_genes <- intersect(data1$gene, data2$gene)
+intersect_label <- paste(intersect_genes, collapse = "\n")
+
+# ⭐ 正确绘图
+p <- ggvenn(data_veen,
+            fill_color = c("#BCCC35", "#5DBBA1"),
+            auto_scale = FALSE,
+            show_percentage = FALSE) +
+  
+  theme_void() +
+  coord_fixed() +
+  
+  # 交集箭头
+  #geom_segment(aes(x = 0.2, y = -0.2,
+                 #  xend = 0.2, yend = -1),
+              # arrow = arrow(length = unit(0.07, "inch")),
+               #linewidth = 1,
+              # color = "grey30") +
+  
+  # 交集标签
+  geom_text(aes(0, -0.1, label = intersect_label),
+            hjust = 0.5,
+            vjust = 1,
+            fontface = "italic")
